@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.util.statemachine;
 
-import org.firstinspires.ftc.teamcode.util.GenConstants;
+import org.firstinspires.ftc.teamcode.util.general.misc.GenConstants;
 
 import java.util.Stack;
 

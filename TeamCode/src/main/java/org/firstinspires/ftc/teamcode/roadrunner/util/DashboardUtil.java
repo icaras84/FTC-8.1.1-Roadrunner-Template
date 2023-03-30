@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.roadrunner.util;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.canvas.Canvas;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.path.Path;
@@ -13,7 +15,6 @@ import java.util.List;
 public class DashboardUtil {
     private static final double DEFAULT_RESOLUTION = 2.0; // distance units; presumed inches
     private static final double ROBOT_RADIUS = 9; // in
-
 
     public static void drawPoseHistory(Canvas canvas, List<Pose2d> poseHistory) {
         double[] xPoints = new double[poseHistory.size()];
