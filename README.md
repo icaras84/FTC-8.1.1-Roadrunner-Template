@@ -18,5 +18,5 @@ Check out the [online quickstart documentation](https://acme-robotics.gitbook.io
 
 ## How to change SDK version
 
-Literally copy the new sdk's FtcRobotController folder and replace this project's folder to patch in the new sdk.
+Copy the new SDK's FtcRobotController folder and replace this project's folder to patch in the new sdk.
 The manifest xml might still have the old version number, but rest assured that you can just change that.
