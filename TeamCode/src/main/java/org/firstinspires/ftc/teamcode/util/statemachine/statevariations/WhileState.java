@@ -26,10 +26,12 @@ public class WhileState implements State {
 
     @Override
     public void run() {
-        if (!isFinished()){
-            internalStateManager.run();
-            if (internalStateManager.hasNoStates()){
-                reloadStateStack();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if (conditional.get()){
+                internalStateManager.run();
+                if (internalStateManager.hasNoStates()){
+                    reloadStateStack();
+                }
             }
         }
     }
@@ -46,7 +48,7 @@ public class WhileState implements State {
     @Override
     public boolean isFinished() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return conditional.get();
+            return !conditional.get();
         }
         return true;
     }
