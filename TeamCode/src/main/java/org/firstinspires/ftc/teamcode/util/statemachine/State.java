@@ -55,19 +55,17 @@ public interface State {
             return this.deltaTime;
         }
     }
-    class WaitFor implements State{
-        private Flag monitoredFlag;
-        private Flag targetFlag;
+    class WaitFor<T extends Flag<?>> implements State{
+        private T monitoredFlag;
+        private T targetFlag;
         private boolean exit;
-        public WaitFor(Flag flag, Flag target){
+        public WaitFor(T flag, T target){
             this.monitoredFlag = flag;
             this.targetFlag = target;
         }
 
         @Override
-        public void init() {
-            this.exit = monitoredFlag.getCurrentState().equals(targetFlag);
-        }
+        public void init() {}
 
         @Override
         public void run() {
@@ -75,9 +73,7 @@ public interface State {
         }
 
         @Override
-        public void end() {
-
-        }
+        public void end() {}
 
         @Override
         public boolean isFinished() {
