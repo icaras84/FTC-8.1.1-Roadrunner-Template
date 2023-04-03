@@ -48,11 +48,15 @@ public interface State {
 
         @Override
         public boolean isFinished() {
-            return currTime + (0.3 * projectedTime) >= durationMS;
+            return currTime + (0.02 * deltaTime) >= durationMS;
         }
 
         public long getDeltaTimeMS(){
             return this.deltaTime;
+        }
+
+        public long getProjectedTimeMS(){
+            return this.projectedTime;
         }
     }
     class WaitFor<T extends Flag<?>> implements State{
