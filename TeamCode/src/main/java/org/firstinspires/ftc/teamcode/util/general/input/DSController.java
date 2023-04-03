@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.util.general.opmode.ParameterizedRunnable;
 import org.firstinspires.ftc.teamcode.util.statemachine.State;
-import org.firstinspires.ftc.teamcode.util.statemachine.statevariations.DefaultState;
 
 public class DSController implements Runnable{
 
@@ -24,9 +23,9 @@ public class DSController implements Runnable{
             lastValue = 0;
             changed = false;
 
-            changedState = DefaultState.inst;
-            maxedState = DefaultState.inst;
-            restState = DefaultState.inst;
+            changedState = new State.Empty();
+            maxedState = new State.Empty();
+            restState = new State.Empty();
         }
 
         public void update(float currentValue){
@@ -102,10 +101,10 @@ public class DSController implements Runnable{
             released = !state && lastState;
             pressed = state && !lastState;
 
-            pressedState = DefaultState.inst;
-            releasedState = DefaultState.inst;
-            heldState = DefaultState.inst;
-            changedState = DefaultState.inst;
+            pressedState = new State.Empty();
+            releasedState = new State.Empty();
+            heldState = new State.Empty();
+            changedState = new State.Empty();
         }
 
         public boolean getState(){

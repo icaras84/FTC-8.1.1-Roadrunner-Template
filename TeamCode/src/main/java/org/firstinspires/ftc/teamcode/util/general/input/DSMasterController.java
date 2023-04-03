@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.util.general.input;
 import org.firstinspires.ftc.teamcode.util.general.opmode.EnhancedOpMode;
 import org.firstinspires.ftc.teamcode.util.statemachine.State;
 import org.firstinspires.ftc.teamcode.util.statemachine.StateManager;
-import org.firstinspires.ftc.teamcode.util.statemachine.statevariations.ParallelStateGroup;
 
 import java.util.Vector;
 
@@ -56,7 +55,7 @@ public class DSMasterController implements Runnable{
         conditionalManager.run();
     }
 
-    private ParallelStateGroup findConditionals(DSController driver){
+    private State.ParallelAsyncGroup findConditionals(DSController driver){
         Vector<State> driverConditionals = new Vector<>();
         for (DSController.Analog analog: driver.getAnalogList()) {
             if (analog.rest) driverConditionals.add(analog.getRestState());
@@ -71,6 +70,6 @@ public class DSMasterController implements Runnable{
             if (digital.pressed) driverConditionals.add(digital.getPressedState());
         }
 
-        return new ParallelStateGroup(driverConditionals.toArray(new State[0]));
+        return new State.ParallelAsyncGroup(driverConditionals.toArray(new State[0]));
     }
 }
