@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.util.statemachine;
 
 import android.os.Build;
 
+import java.util.concurrent.ForkJoinPool;
 import java.util.function.Supplier;
 
 public interface State {
@@ -298,7 +299,18 @@ public interface State {
 
         @Override
         public void run() {
-            new Thread(internalStateManager);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                ForkJoinPool.commonPool().submit(
+                () -> {
+                    while (!internalStateManager.hasNoStates()) {
+                        internalStateManager.run();
+                    }});
+            } else {
+                new Thread(() -> {
+                    while (!internalStateManager.hasNoStates()) {
+                        internalStateManager.run();
+                    }});
+            }
         }
 
         @Override
