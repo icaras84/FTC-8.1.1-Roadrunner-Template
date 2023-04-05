@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.util.general.input.DSController;
 import org.firstinspires.ftc.teamcode.util.general.input.DSMasterController;
-import org.firstinspires.ftc.teamcode.util.general.misc.GenConstants;
+import org.firstinspires.ftc.teamcode.util.general.misc.GeneralConstants;
 
 public abstract class EnhancedOpMode extends OpMode {
 
@@ -95,7 +95,7 @@ public abstract class EnhancedOpMode extends OpMode {
                 frames = 0;
 
                 //pass in the delta time and current time for the abstract method to use
-                opFixedUpdate(updateCap * GenConstants.SEC2MS);
+                opFixedUpdate(updateCap * GeneralConstants.SEC2MS);
 
             }
         }
@@ -107,7 +107,7 @@ public abstract class EnhancedOpMode extends OpMode {
     }
 
     public double getDeltaTimeNANO(){
-        return deltaTimeMS * GenConstants.MS2NANO;
+        return deltaTimeMS * GeneralConstants.MS2NANO;
     }
 
     public double getDeltaTimeMS(){
@@ -115,7 +115,7 @@ public abstract class EnhancedOpMode extends OpMode {
     }
 
     public double getDeltaTimeSEC(){
-        return deltaTimeMS * GenConstants.MS2SEC;
+        return deltaTimeMS * GeneralConstants.MS2SEC;
     }
 
     public double getFps(){
@@ -123,7 +123,7 @@ public abstract class EnhancedOpMode extends OpMode {
     }
 
     public double getElapsedTimeNANO(){
-        return getElapsedTimeMS() * GenConstants.MS2NANO;
+        return getElapsedTimeMS() * GeneralConstants.MS2NANO;
     }
 
     public double getElapsedTimeMS(){
@@ -131,12 +131,12 @@ public abstract class EnhancedOpMode extends OpMode {
     }
 
     public double getElapsedTimeSEC(){
-        return getElapsedTimeMS() * GenConstants.MS2SEC;
+        return getElapsedTimeMS() * GeneralConstants.MS2SEC;
     }
 
 
     public double getElapsedOpModeTimeNANO(){
-        return getElapsedOpModeTimeMS() * GenConstants.MS2NANO;
+        return getElapsedOpModeTimeMS() * GeneralConstants.MS2NANO;
     }
 
     public double getElapsedOpModeTimeMS(){
@@ -144,7 +144,7 @@ public abstract class EnhancedOpMode extends OpMode {
     }
 
     public double getElapsedOpModeTimeSEC(){
-        return getElapsedOpModeTimeMS() * GenConstants.MS2SEC;
+        return getElapsedOpModeTimeMS() * GeneralConstants.MS2SEC;
     }
 
     public void setFixedUpdateCap(int cap){

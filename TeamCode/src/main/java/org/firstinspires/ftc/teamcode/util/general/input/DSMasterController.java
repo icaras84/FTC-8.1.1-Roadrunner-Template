@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.util.general.input;
 
 import org.firstinspires.ftc.teamcode.util.general.opmode.EnhancedOpMode;
 import org.firstinspires.ftc.teamcode.util.statemachine.State;
-import org.firstinspires.ftc.teamcode.util.statemachine.StateManager;
 
 import java.util.Vector;
 
@@ -16,7 +15,7 @@ public class DSMasterController implements Runnable{
     private EnhancedOpMode opMode;
     private DSController driver1, driver2;
 
-    private final StateManager conditionalManager;
+    private final State.Sequence stateManager;
 
     public DSMasterController(EnhancedOpMode enhancedOpMode){
         this.opMode = enhancedOpMode;
@@ -24,7 +23,7 @@ public class DSMasterController implements Runnable{
         this.driver1 = new DSController(this.opMode.gamepad1);
         this.driver2 = new DSController(this.opMode.gamepad2);
 
-        this.conditionalManager = new StateManager();
+        this.stateManager = new State.Sequence();
     }
 
     public DSController getController(Driver driver){
@@ -42,8 +41,8 @@ public class DSMasterController implements Runnable{
         return driver2;
     }
 
-    public StateManager getStateManager(){
-        return conditionalManager;
+    public State.Sequence getStateManager(){
+        return stateManager;
     }
 
     @Override
@@ -51,8 +50,8 @@ public class DSMasterController implements Runnable{
         driver1.run();
         driver2.run();
 
-        conditionalManager.addAll(findConditionals(driver1), findConditionals(driver2));
-        conditionalManager.run();
+        stateManager.addAll(findConditionals(driver1), findConditionals(driver2));
+        stateManager.run();
     }
 
     private State.ParallelAsyncGroup findConditionals(DSController driver){
