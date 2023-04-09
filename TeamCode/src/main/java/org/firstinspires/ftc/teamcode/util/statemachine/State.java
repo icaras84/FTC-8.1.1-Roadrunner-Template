@@ -11,14 +11,15 @@ import java.util.concurrent.ForkJoinPool;
 /**
  * This interface can be implemented to give a "command" that is dedicated to a single job.
  * It also allows the ability to put those states in a "State Machine" ({@code State.Sequence})
+ * The purpose of this interface extending Runnable is to allow the freedom of throwing this object
+ * on another thread if necessary, allowing for true asynchronous actions
  */
 public interface State extends Runnable{
-
-    /**
-     * This empty state contains nothing and runs nothing
-     */
     final class Empty implements State{
 
+        /**
+         * This empty state contains nothing and runs nothing
+         */
         public Empty(){}
 
         @Override public void init() {}
@@ -31,16 +32,22 @@ public interface State extends Runnable{
         }
     }
 
-    /**
-     * This state is a special command for the state machine to wait
-     * (non-blocking, so the main thread can still proceed)
-     */
     class Wait implements State{
         private long durationMS;
 
         private long lastTime = 0L, currTime = 0L, deltaTime = 0L, projectedTime = 0L;
+
+        /**
+         * This state is a special command for the state machine to wait
+         * (non-blocking, so the main thread can still proceed)
+         * @param ms
+         */
         public Wait(long ms){
             this.durationMS = ms;
+        }
+
+        public Wait(double ms){
+            this((long) ms);
         }
 
         @Override
@@ -76,15 +83,17 @@ public interface State extends Runnable{
         }
     }
 
-    /**
-     * This state is a special command for the state machine to wait
-     * until a certain flag pops-up
-     * @param <T>
-     */
     class WaitFor<T extends Flag<?>> implements State{
         private T monitoredFlag;
         private T targetFlag;
         private boolean exit;
+
+        /**
+         * This state is a special command for the state machine to wait
+         * until a certain flag pops-up
+         * @param flag
+         * @param target
+         */
         public WaitFor(T flag, T target){
             this.monitoredFlag = flag;
             this.targetFlag = target;
@@ -107,15 +116,18 @@ public interface State extends Runnable{
         }
     }
 
-    /**
-     * This state is self-explanatory as IF a condition is true, the state in the truth body runs,
-     * but while false the state in the false body runs
-     */
     class If implements State {
 
         private State t, f;
         private Supplier<Boolean> conditional;
 
+        /**
+         * This state is self-explanatory as IF a condition is true, the state in the truth body runs,
+         * but while false the state in the false body runs
+         * @param condition
+         * @param conditionTrue
+         * @param conditionFalse
+         */
         public If(Supplier<Boolean> condition, State conditionTrue, State conditionFalse){
             this.t = conditionTrue;
             this.f = conditionFalse;
@@ -159,15 +171,17 @@ public interface State extends Runnable{
         }
     }
 
-    /**
-     * This state is self-explanatory as WHILE a condition is true, the states in the body run
-     */
     class While implements State {
 
         private State[] states;
         private Supplier<Boolean> conditional;
         private Sequence internalStateManager;
 
+        /**
+         * This state is self-explanatory as WHILE a condition is true, the states in the body run
+         * @param condition
+         * @param states
+         */
         public While(Supplier<Boolean> condition, State... states){
             this.conditional = condition;
             this.states = states;
@@ -204,15 +218,18 @@ public interface State extends Runnable{
         }
     }
 
-    /**
-     * This is a specialized version of the WHILE state where it strictly operates on an iterator
-     */
+
     class For implements State {
         private int i, loopLimit;
 
         private State[] cachedStates;
         private Sequence internalStateManager;
 
+        /**
+         * This is a specialized version of the WHILE state where it strictly operates on an iterator
+         * @param loopCount
+         * @param states
+         */
         public For(int loopCount, State... states){
             this.cachedStates = states;
             this.internalStateManager = new Sequence();
@@ -256,15 +273,16 @@ public interface State extends Runnable{
         }
     }
 
-    /**
-     * This state specifies what needs to be run at the same time, but this state finishes after
-     * every state finishes
-     */
     class AsyncGroup implements State {
 
         private State[] states;
         private boolean[] finishMask;
 
+        /**
+         * This state specifies what needs to be run at the same time, but this state finishes after
+         * every state finishes
+         * @param states
+         */
         public AsyncGroup(State... states){
             this.states = states;
             this.finishMask = new boolean[this.states.length];
@@ -308,15 +326,16 @@ public interface State extends Runnable{
         }
     }
 
-    /**
-     * This state is a special type of {@code AsyncGroup} state where it puts every state on an
-     * async group and tells it to run in a separate thread, finishing immediately
-     */
     class ParallelAsyncGroup implements State {
 
         private volatile Sequence internalStateManager;
         private volatile State[] states;
 
+        /**
+         * This state is a special type of {@code AsyncGroup} state where it puts every state on an
+         * async group and tells it to run in a separate thread, finishing immediately
+         * @param states
+         */
         public ParallelAsyncGroup(State... states){
             this.states = states;
             this.internalStateManager = new Sequence();
@@ -355,10 +374,6 @@ public interface State extends Runnable{
         }
     }
 
-    /**
-     * This state is akin to a "State Machine" where it details a specified sequence of states
-     * it needs to run and has logic for handling that
-     */
     class Sequence implements State{
         private Stack<State> stateStack;
         private long startTime;
@@ -366,12 +381,28 @@ public interface State extends Runnable{
         private boolean sInit = false;
         private State runningState = null;
 
+        private boolean guaranteeRunOnce = false;
+
+        /**
+         * This state is akin to a "State Machine" where it details a specified sequence of states
+         * it needs to run and has logic for handling that
+         */
         public Sequence(){
             stateStack = new Stack<>();
         }
 
+        /**
+         * This state is akin to a "State Machine" where it details a specified sequence of states
+         * it needs to run and has logic for handling that (This constructor copies another sequence into a new object)
+         * @param stateSequence
+         */
         public Sequence(Sequence stateSequence){
             this.stateStack = (Stack<State>) stateSequence.stateStack.clone();
+        }
+
+        public Sequence toggleGuaranteeStateRunsOnce(boolean nSetting){
+            this.guaranteeRunOnce = nSetting;
+            return this;
         }
 
         public Sequence add(State state){
@@ -416,7 +447,7 @@ public interface State extends Runnable{
                     sInit = true; //flag true after running initialization to prevent another init call
                 }
 
-                if (!runningState.isFinished()) runningState.run();
+                if (guaranteeRunOnce || !runningState.isFinished()) runningState.run();
 
                 if (runningState.isFinished()) { //check if current state is finished
                     runningState.end(); //call end() of current state
@@ -463,8 +494,24 @@ public interface State extends Runnable{
         }
     }
 
+    /**
+     * This method runs once on the instance that this state is reached
+     */
     void init();
+
+    /**
+     * This method runs as periodically as soon as this state is reached
+     */
     void run();
+
+    /**
+     * This method is ran once on the instant that this state finishes
+     */
     void end();
+
+    /**
+     * This method dictates if this state is finished or not
+     * @return
+     */
     boolean isFinished();
 }
