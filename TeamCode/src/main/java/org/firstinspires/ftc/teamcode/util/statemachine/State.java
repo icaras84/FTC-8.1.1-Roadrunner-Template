@@ -5,6 +5,7 @@ import android.os.Build;
 import org.firstinspires.ftc.teamcode.util.general.functionalinterfaces.Supplier;
 import org.firstinspires.ftc.teamcode.util.general.misc.GeneralConstants;
 
+import java.util.LinkedList;
 import java.util.Stack;
 import java.util.concurrent.ForkJoinPool;
 
@@ -375,8 +376,10 @@ public interface State extends Runnable{
     }
 
     class Sequence implements State{
-        private Stack<State> stateStack;
+        private LinkedList<State> stateQueue;
         private long startTime;
+
+        private long loopStartTime, loopEndTime;
 
         private boolean sInit = false;
         private State runningState = null;
@@ -388,7 +391,7 @@ public interface State extends Runnable{
          * it needs to run and has logic for handling that
          */
         public Sequence(){
-            stateStack = new Stack<>();
+            stateQueue = new LinkedList<>();
         }
 
         /**
@@ -397,7 +400,7 @@ public interface State extends Runnable{
          * @param stateSequence
          */
         public Sequence(Sequence stateSequence){
-            this.stateStack = (Stack<State>) stateSequence.stateStack.clone();
+            this.stateQueue = (LinkedList<State>) stateSequence.stateQueue.clone();
         }
 
         public Sequence toggleGuaranteeStateRunsOnce(boolean nSetting){
@@ -406,7 +409,7 @@ public interface State extends Runnable{
         }
 
         public Sequence add(State state){
-            stateStack.add(0, state);
+            stateQueue.add(state);
             return this;
         }
 
@@ -423,12 +426,12 @@ public interface State extends Runnable{
         }
 
         public State[] getSequence(){
-            State[] states = stateStack.toArray(new State[0]);
+            State[] states = stateQueue.toArray(new State[0]);
             return states;
         }
 
         public Sequence addToNext(State state){
-            stateStack.insertElementAt(state, stateStack.size() - 2);
+            stateQueue.add(1, state);
             return this;
         }
 
@@ -438,20 +441,22 @@ public interface State extends Runnable{
         }
 
         public void run(){
-            if (!stateStack.empty()) { //check if the stack is filled
+            if (!stateQueue.isEmpty()) { //check if the stack is filled
                 if (!sInit) { //test if the current state has initialized (default is false)
                     startTime = System.currentTimeMillis();
 
-                    runningState = stateStack.peek();
+                    runningState = stateQueue.peek();
                     runningState.init();
                     sInit = true; //flag true after running initialization to prevent another init call
                 }
 
+                loopStartTime = System.currentTimeMillis();
                 if (guaranteeRunOnce || !runningState.isFinished()) runningState.run();
+                loopEndTime = System.currentTimeMillis();
 
                 if (runningState.isFinished()) { //check if current state is finished
                     runningState.end(); //call end() of current state
-                    stateStack.pop(); //dispose of the state
+                    stateQueue.pop(); //dispose of the state
                     sInit = false; //flag that the next state needs to initialize
                 }
             } else {
@@ -470,27 +475,31 @@ public interface State extends Runnable{
         }
 
         public boolean hasNoStates(){
-            return stateStack.empty();
+            return stateQueue.isEmpty();
         }
 
         public boolean isEmpty(){
-            return stateStack.empty();
+            return stateQueue.isEmpty();
         }
 
-        public long getCurrentStateElapsedTimeMS(){
+        public double getCurrentStateElapsedTimeMS(){
             return System.currentTimeMillis() - startTime;
         }
 
-        public long getCurrentStateElapsedTimeSEC(){
-            return (long) (getCurrentStateElapsedTimeMS() * GeneralConstants.MS2SEC);
+        public double getCurrentStateElapsedTimeSEC(){
+            return getCurrentStateElapsedTimeMS() * GeneralConstants.MS2SEC;
         }
 
-        public long getStartTimeMS(){
+        public double getDeltaTimeMS(){
+            return loopEndTime - loopStartTime;
+        }
+
+        public double getStartTimeMS(){
             return startTime;
         }
 
-        public long getStartTimeSEC(){
-            return (long) (startTime * GeneralConstants.MS2SEC);
+        public double getStartTimeSEC(){
+            return startTime * GeneralConstants.MS2SEC;
         }
     }
 

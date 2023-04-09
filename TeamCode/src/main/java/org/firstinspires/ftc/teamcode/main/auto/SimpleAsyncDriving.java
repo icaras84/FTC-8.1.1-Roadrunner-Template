@@ -36,13 +36,11 @@ public class SimpleAsyncDriving extends OpMode {
 
         @Override
         public void run() {
-
+            drive.update();
         }
 
         @Override
-        public void end() {
-
-        }
+        public void end() {}
 
         @Override
         public boolean isFinished() {
@@ -55,6 +53,9 @@ public class SimpleAsyncDriving extends OpMode {
     private State.Sequence mainSequence;
 
     private SampleMecanumDrive drive;
+
+    public static double DISTANCE = 10;
+    public static double WAIT_TIME_SEC = 1;
 
     @Override
     public void init() {
@@ -71,14 +72,14 @@ public class SimpleAsyncDriving extends OpMode {
         driveSequence = (new State.Sequence()).addAll(
                 new DriveCmd(
                         drive.trajectoryBuilder(drive.getPoseEstimate())
-                                .lineToSplineHeading(new Pose2d(0, 10, GeneralConstants.DEG2RAD * 90d))
+                                .lineToSplineHeading(new Pose2d(0, DISTANCE, GeneralConstants.DEG2RAD * 90d))
                                 .lineTo(new Vector2d(0, 0))
                                 .build()
                 ),
-                new State.Wait(1 * GeneralConstants.SEC2MS), //CAN be simplified to one trajectory, but for this instance: no
+                new State.Wait(WAIT_TIME_SEC * GeneralConstants.SEC2MS), //CAN be simplified to one trajectory, but for this instance: no
                 new DriveCmd(
                         drive.trajectoryBuilder(drive.getPoseEstimate())
-                                .lineToSplineHeading(new Pose2d(0, 10, GeneralConstants.DEG2RAD * 0d))
+                                .lineToSplineHeading(new Pose2d(0, DISTANCE, GeneralConstants.DEG2RAD * 0d))
                                 .lineTo(new Vector2d(0, 0))
                                 .build()
                 ));

@@ -55,20 +55,20 @@ public class DSMasterController implements Runnable{
     }
 
     private State.ParallelAsyncGroup findConditionals(DSController driver){
-        Vector<State> driverConditionals = new Vector<>();
+        Vector<State> driverCommands = new Vector<>();
         for (DSController.Analog analog: driver.getAnalogList()) {
-            if (analog.rest) driverConditionals.add(analog.getRestState());
-            if (analog.maxed) driverConditionals.add(analog.getMaxedState());
-            if (analog.changed) driverConditionals.add(analog.getChangedState());
+            if (analog.rest) driverCommands.add(analog.getRestState());
+            if (analog.maxed) driverCommands.add(analog.getMaxedState());
+            if (analog.changed) driverCommands.add(analog.getChangedState());
         }
 
         for (DSController.Digital digital: driver.getDigitalList()) {
-            if (digital.changed) driverConditionals.add(digital.getChangedState());
-            if (digital.held) driverConditionals.add(digital.getHeldState());
-            if (digital.released) driverConditionals.add(digital.getReleasedState());
-            if (digital.pressed) driverConditionals.add(digital.getPressedState());
+            if (digital.changed) driverCommands.add(digital.getChangedState());
+            if (digital.held) driverCommands.add(digital.getHeldState());
+            if (digital.released) driverCommands.add(digital.getReleasedState());
+            if (digital.pressed) driverCommands.add(digital.getPressedState());
         }
 
-        return new State.ParallelAsyncGroup(driverConditionals.toArray(new State[0]));
+        return new State.ParallelAsyncGroup(driverCommands.toArray(new State[0]));
     }
 }

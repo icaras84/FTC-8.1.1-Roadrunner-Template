@@ -95,7 +95,7 @@ public abstract class EnhancedOpMode extends OpMode {
                 frames = 0;
 
                 //pass in the delta time and current time for the abstract method to use
-                opFixedUpdate(updateCap * GeneralConstants.SEC2MS);
+                opFixedUpdate(updateCap);
 
             }
         }
