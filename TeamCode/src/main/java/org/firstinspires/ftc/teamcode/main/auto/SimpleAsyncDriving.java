@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.util.general.misc.GeneralConstants;
+import org.firstinspires.ftc.teamcode.util.statemachine.Flag;
 import org.firstinspires.ftc.teamcode.util.statemachine.State;
 
 /*
@@ -63,9 +64,53 @@ public class SimpleAsyncDriving extends OpMode {
         drive = new SampleMecanumDrive(hardwareMap);
         drive.setPoseEstimate(new Pose2d());
         DriveCmd.drive = drive;
+        Flag<Flag.Basic> driveSyncFlag = new Flag<>(Flag.Basic.OFF);
+        Flag<Flag.Basic> synced = new Flag<>(Flag.Basic.ON);
 
         mainSequence = (new State.Sequence()).addAll(
+                new State() {
+                    @Override
+                    public void init() {
+                        telemetry.addData("Drive Sequence Ended: ", "False");
+                    }
 
+                    @Override
+                    public void run() {
+
+                    }
+
+                    @Override
+                    public void end() {
+
+                    }
+
+                    @Override
+                    public boolean isFinished() {
+                        return true;
+                    }
+                },
+                new State.WaitFor<>(driveSyncFlag, synced),
+                new State() {
+                    @Override
+                    public void init() {
+                        telemetry.addData("Drive Sequence Ended: ", "True");
+                    }
+
+                    @Override
+                    public void run() {
+
+                    }
+
+                    @Override
+                    public void end() {
+
+                    }
+
+                    @Override
+                    public boolean isFinished() {
+                        return false;
+                    }
+                }
         );
 
 
@@ -82,7 +127,28 @@ public class SimpleAsyncDriving extends OpMode {
                                 .lineToSplineHeading(new Pose2d(0, DISTANCE, GeneralConstants.DEG2RAD * 0d))
                                 .lineTo(new Vector2d(0, 0))
                                 .build()
-                ));
+                ),
+                new State() {
+                    @Override
+                    public void init() {
+                        driveSyncFlag.setCurrentState(Flag.Basic.ON);
+                    }
+
+                    @Override
+                    public void run() {
+
+                    }
+
+                    @Override
+                    public void end() {
+
+                    }
+
+                    @Override
+                    public boolean isFinished() {
+                        return false;
+                    }
+                });
 
         masterStateSequence = new State.Sequence();
         masterStateSequence.add(new State.AsyncGroup(mainSequence, driveSequence));
